@@ -376,7 +376,7 @@ class LatLon_Utm extends LatLonEllipsoidal {
 
         const h = hemisphereOverrided ? hemisphereOverride : this.lat>=0 ? 'N' : 'S'; // hemisphere
 
-        return new Utm(zone, h, x, y, this.datum, convergence, scale, zoneOverride || true);
+        return new Utm(zone, h, x, y, this.datum, convergence, scale, zoneOverride ? false : true);
     }
 }
 
