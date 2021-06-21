@@ -359,14 +359,15 @@ class LatLon_Utm extends LatLonEllipsoidal {
         const k = k0 * kʹ * kʺ;
 
         // ------------
-        const hemisphereOverrided = (hemisphereOverride && hemisphereOverride.match(/S/i));
+        const hemisphereOverrided = (hemisphereOverride && hemisphereOverride.match(/[NS]/i));
 
         // shift x/y to false origins
         x = x + falseEasting;             // make x relative to false easting
-        if (hemisphereOverrided)
+        if (hemisphereOverrided) {
             y = y + falseNorthing; // make y in southern hemisphere relative to false northing
-        else if (y < 0)
+        } else if (y < 0) {
             y = y + falseNorthing; // make y in southern hemisphere relative to false northing        
+        }
 
         // round to reasonable precision
         x = Number(x.toFixed(9)); // nm precision

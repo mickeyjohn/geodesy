@@ -1,5 +1,5 @@
 {
-  "name": "geodesy",
+  "name": "@mickeyjohn/geodesy",
   "description": "Libraries of geodesy functions",
   "homepage": "http://www.movable-type.co.uk/scripts/geodesy-library.html",
   "repository": {
