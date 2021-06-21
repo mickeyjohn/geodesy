@@ -262,6 +262,9 @@ class LatLon_Utm extends LatLonEllipsoidal {
      * @param   {number} [zoneOverride] - Use specified zone rather than zone within which point lies;
      *          note overriding the UTM zone has the potential to result in negative eastings, and
      *          perverse results within Norway/Svalbard exceptions.
+     * @param   {string} [hemisphereOverride] - Use specified hemisphere rather than hemisphere within which point lies;
+     *          note overriding the UTM zone has the potential to result in invalid UTM limits. For handling multiple zones
+     *          when you know the best reference zone only.
      * @returns {Utm} UTM coordinate.
      * @throws  {TypeError} Latitude outside UTM limits.
      *
@@ -269,7 +272,7 @@ class LatLon_Utm extends LatLonEllipsoidal {
      *   const latlong = new LatLon(48.8582, 2.2945);
      *   const utmCoord = latlong.toUtm(); // 31 N 448252 5411933
      */
-    toUtm(zoneOverride=undefined) {
+    toUtm(zoneOverride=undefined, hemisphereOverride=undefined) {
         if (!(-80<=this.lat && this.lat<=84)) throw new RangeError(`latitude ‘${this.lat}’ outside UTM limits`);
 
         const falseEasting = 500e3, falseNorthing = 10000e3;
@@ -356,10 +359,14 @@ class LatLon_Utm extends LatLonEllipsoidal {
         const k = k0 * kʹ * kʺ;
 
         // ------------
+        const hemisphereOverrided = (hemisphereOverride && hemisphereOverride.match(/S/i));
 
         // shift x/y to false origins
         x = x + falseEasting;             // make x relative to false easting
-        if (y < 0) y = y + falseNorthing; // make y in southern hemisphere relative to false northing
+        if (hemisphereOverrided)
+            y = y + falseNorthing; // make y in southern hemisphere relative to false northing
+        else if (y < 0)
+            y = y + falseNorthing; // make y in southern hemisphere relative to false northing        
 
         // round to reasonable precision
         x = Number(x.toFixed(9)); // nm precision
@@ -367,9 +374,9 @@ class LatLon_Utm extends LatLonEllipsoidal {
         const convergence = Number(γ.toDegrees().toFixed(9));
         const scale = Number(k.toFixed(12));
 
-        const h = this.lat>=0 ? 'N' : 'S'; // hemisphere
+        const h = hemisphereOverrided ? hemisphereOverride : this.lat>=0 ? 'N' : 'S'; // hemisphere
 
-        return new Utm(zone, h, x, y, this.datum, convergence, scale, !!zoneOverride);
+        return new Utm(zone, h, x, y, this.datum, convergence, scale, zoneOverride || true);
     }
 }
 
